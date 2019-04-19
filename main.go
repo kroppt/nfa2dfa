@@ -59,10 +59,11 @@ func εClosure(trans []map[rune]Set, s Set) (ns Set) {
 	// iterate until no change
 	ns = s.Copy()
 	var Δs Set
-	iterf := func(i int) {
+	iterf := func(i int) bool {
 		if s, ok := trans[i]['ε']; ok {
 			Δs.Union(s)
 		}
+		return true
 	}
 	Δb := true
 	for Δb {
@@ -146,19 +147,20 @@ func main() {
 		d := worklist[workind]
 		workind++
 		sub := subset[d]
-		alph.Range(func(r int) {
+		alph.Range(func(r int) bool {
 			if rune(r) == 'ε' {
-				return
+				return true
 			}
 			a := NewSet()
-			sub.Range(func(s int) {
+			sub.Range(func(s int) bool {
 				if t, ok := trans[s][rune(r)]; ok {
 					a.Union(t)
 				}
+				return true
 			})
 			a = εClosure(trans, a)
 			if a.Size() == 0 {
-				return
+				return true
 			}
 			nd, ok := func() (Set, bool) {
 				for _, m := range dfa {
@@ -179,6 +181,7 @@ func main() {
 				dfa[d] = map[rune]Set{}
 			}
 			dfa[d][rune(r)] = nd
+			return true
 		})
 	}
 	for i, m := range dfa {
